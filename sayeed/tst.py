@@ -76,3 +76,6 @@ def query_wikidata(subject_label, predicate_label):
 
 # Example usage
 query_wikidata("Douglas Adams", "educated at")
+query_wikidata("Albert Einstein", "educated at")
+#query_wikidata("Marie Curie", "award received")
+# Example usage
