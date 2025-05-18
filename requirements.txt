@@ -1,0 +1,12 @@
+spacy==3.3.3
+allennlp==2.10.1
+allennlp-models==2.10.1
+torch==1.11.0
+torchvision==0.12.0
+numpy==1.24.4
+typing-extensions==4.5.0
+scipy==1.15.3
+scikit-learn==1.6.1
+transformers==4.20.1
+requests==2.32.3
+tqdm==4.64.1
