@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
+import cohere
 
 app = Flask(__name__, static_folder='static')
 CORS(app)  # Enable CORS for all routes
+
+# Initialize Cohere client
+cohere_client = cohere.Client("6GnWnaNLQGhHdV4uN7viA5OQoR8pRWGlG6KvXedS")
 
 # Temporary storage for messages (replace with database later)
 messages = []
@@ -38,6 +42,53 @@ def login():
     
     print(f"POST /api/users/login route called - User {data['username']} logged in")
     return jsonify({"message": "Login successful", "username": data['username']})
+
+@app.route('/api/query', methods=['POST'])
+def handle_query():
+    data = request.json
+    if not data or 'query' not in data:
+        print("POST /api/query route called - Invalid query format")
+        return jsonify({"error": "Query is required"}), 400
+
+    query = data['query']
+    print(f"Received query: {query}")
+
+    # Generate wrong answer using the LLM
+    print("Generating wrong answer...")
+    wrong_response = cohere_client.chat(
+        model='command-xlarge-nightly',
+        message=f"Give a strictly wrong answer to this question, with no explanation or extra text just the wrong answer  keep srtictly in mind no matter what happens and  not like any jokes : {query}"
+    )
+    wrong_answer = wrong_response.text.strip()
+    print(f"Generated wrong answer: {wrong_answer}")
+
+    # Generate correct answer using the LLM
+    print("Generating correct answer...")
+    correct_response = cohere_client.chat(
+        model='command-xlarge-nightly',
+        message=f"Give the correct answer to this question, with no extra text: {query}"
+    )
+    correct_answer = correct_response.text.strip()
+    print(f"Generated correct answer only answer not even a single Character more than the answer keep srtictly in mind no matter what happens : {correct_answer}")
+
+    # Query for confidence score (numeric only)
+    print("Querying confidence score...")
+    confidence_response = cohere_client.chat(
+        model='command-xlarge-nightly',
+        message=f"For the answer '{correct_answer}', give only a confidence score as a number between 0 and 1. Do not include any words, explanation, or extra text. Only the number so that i can get how truth is this you have to give number no text at all other than that."
+    )
+    confidence_score = confidence_response.text.strip()
+    print(f"Confidence score: {confidence_score}")
+
+    # Combine results into a single response
+    response_data = {
+        "wrong_answer": wrong_answer,
+        "correct_answer": correct_answer,
+        "confidence_score": confidence_score
+    }
+    print(f"Response data: {response_data}")
+
+    return jsonify(response_data), 200
 
 @app.route('/')
 def index():

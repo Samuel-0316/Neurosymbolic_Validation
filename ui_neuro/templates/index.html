@@ -3,72 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat Interface</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Query Processor</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Main Chat Interface -->
-        <div id="chat-container">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Chat Section -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-bold mb-4 text-gray-800">Chat</h2>
-                        <div id="messages" class="h-96 overflow-y-auto space-y-4 mb-4 p-4"></div>
-                        <form id="message-form" class="flex space-x-4">
-                            <input type="text" id="message-input" required
-                                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                                placeholder="Type your message...">
-                            <button type="submit"
-                                class="bg-purple-600 text-white py-2 px-6 rounded-md hover:bg-purple-700 transition duration-200">
-                                Send
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Accuracy Section -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-bold mb-4 text-gray-800">AI Performance Metrics</h2>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between mb-2">
-                                    <span class="text-sm font-medium text-gray-700">Accuracy Score</span>
-                                    <span id="accuracy-score" class="text-sm font-medium text-purple-600">0%</span>
-                                </div>
-                                <div class="h-2 bg-gray-200 rounded-full">
-                                    <div id="accuracy-bar" class="h-2 bg-purple-600 rounded-full score-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="space-y-6">
-                    <!-- Validation Section -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-bold mb-4 text-gray-800">Output Comparison</h2>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-sm text-gray-700 mb-2">LLM Output</h3>
-                                <p id="llm-output" class="text-sm text-gray-600">No output yet</p>
-                            </div>
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h3 class="font-medium text-sm text-gray-700 mb-2">Validated Output</h3>
-                                <p id="validated-output" class="text-sm text-gray-600">No validation yet</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Logs Section -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-bold mb-4 text-gray-800">System Logs</h2>
-                        <div id="logs" class="h-64 overflow-y-auto space-y-2 text-sm"></div>
-                    </div>
-                </div>
-            </div>
+<body>
+    <div class="container">
+        <h1>Query Processor</h1>
+        <div class="query-section">
+            <input type="text" id="query-input" placeholder="Enter your query here">
+            <button id="submit-query">Submit</button>
+        </div>
+        <div class="response-section">
+            <h2>Results</h2>
+            <p><strong>Wrong Answer:</strong> <span id="wrong-answer"></span></p>
+            <p><strong>Correct Answer:</strong> <span id="correct-answer"></span></p>
+            <p><strong>Confidence Score:</strong> <span id="confidence"></span></p>
+            <h3>Comparison</h3>
+            <p id="comparison"></p>
         </div>
     </div>
     <script src="/static/js/main.js"></script>
