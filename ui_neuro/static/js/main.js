@@ -27,8 +27,8 @@ document.getElementById('submit-query').addEventListener('click', async () => {
 
         const data = await response.json();
 
-        // Animate and display LLM generated answer
-        typeWriterEffect('wrong-answer', data.wrong_answer || '—');
+        // Animate and display LLM generated answer (with HTML support)
+        typeWriterEffectHTML('wrong-answer', data.wrong_answer || '—');
         // Animate and display processed answer
         typeWriterEffect('correct-answer', data.correct_answer || '—');
 
@@ -57,6 +57,25 @@ function typeWriterEffect(elementId, text) {
     function type() {
         if (i < text.length) {
             el.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, 18 + Math.random() * 30);
+        }
+    }
+    type();
+}
+
+// Typewriter effect for chat bubbles (HTML version)
+function typeWriterEffectHTML(elementId, html) {
+    const el = document.getElementById(elementId);
+    el.innerHTML = '';
+    // Create a temporary div to split HTML into characters while preserving tags
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const nodes = Array.from(tempDiv.childNodes);
+    let i = 0;
+    function type() {
+        if (i < nodes.length) {
+            el.appendChild(nodes[i].cloneNode(true));
             i++;
             setTimeout(type, 18 + Math.random() * 30);
         }

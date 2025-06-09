@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
 import cohere
+import requests
+import json
 
 app = Flask(__name__, static_folder='static')
 CORS(app)  # Enable CORS for all routes
@@ -53,29 +55,58 @@ def handle_query():
     query = data['query']
     print(f"Received query: {query}")
 
-    # Generate wrong answer using the LLM
-    print("Generating wrong answer...")
-    wrong_response = cohere_client.chat(
-        model='command-xlarge-nightly',
-        message=f"Give a strictly wrong answer to this question, with no explanation or extra text just the wrong answer  keep srtictly in mind no matter what happens and  not like any jokes : {query}"
-    )
-    wrong_answer = wrong_response.text.strip()
+    # Generate wrong answer using HTTP POST to local LLM
+    print("Generating wrong answer via local LLM (requests)...")
+    wrong_answer = ""
+    try:
+        response = requests.post(
+            "https://d08e-49-204-87-250.ngrok-free.app/chat",
+            headers={"Content-Type": "application/json"},
+            json={
+                "question": query,
+                "max_tokens": 100,
+                "model": "mlx-community/quantized-gemma-2b-it"
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        print(f"Raw response from ngrok endpoint: {response.text}")  # Debug print
+        wrong_response_json = response.json()
+        wrong_answer = wrong_response_json.get('answer')
+        if not wrong_answer:
+            wrong_answer = wrong_response_json.get('response')
+        if not wrong_answer:
+            wrong_answer = str(wrong_response_json)
+        wrong_answer = wrong_answer.strip()
+    except Exception as e:
+        print(f"Error calling local LLM: {e}")
+        wrong_answer = "[.....]"
     print(f"Generated wrong answer: {wrong_answer}")
 
-    # Generate correct answer using the LLM
-    print("Generating correct answer...")
+    # Generate correct answer using the LLM, referencing the wrong answer
+    print("Generating correct answer with context of wrong answer...")
+    correct_prompt = (
+        f"User query: {query}\n"
+        f"LLM Generated Answer: {wrong_answer}\n"
+        "If the above answer is wrong, provide the correct answer.only not even a single word more than that and keep as as short as possible. less then the length of the llm generated answer. "
+        "If it is correct, confirm it. Give only the correct answer, with no extra text.keep it as short as possible. and please do not include any words, explanation, or extra text. just a small answer. of less length like direct point to point answer"
+    )
     correct_response = cohere_client.chat(
         model='command-xlarge-nightly',
-        message=f"Give the correct answer to this question, with no extra text: {query}"
+        message=correct_prompt
     )
     correct_answer = correct_response.text.strip()
-    print(f"Generated correct answer only answer not even a single Character more than the answer keep srtictly in mind no matter what happens : {correct_answer}")
+    print(f"Generated correct answer: {correct_answer}")
 
     # Query for confidence score (numeric only)
     print("Querying confidence score...")
+    confidence_prompt = (
+        f"For the answer '{correct_answer}' which you gave previously, "
+        "Do not include any words, explanation, or extra text. Only the number.by thinking how confident you are about the correctness of the answer. give the score strictly between 0 and 1. "
+    )
     confidence_response = cohere_client.chat(
         model='command-xlarge-nightly',
-        message=f"For the answer '{correct_answer}', give only a confidence score as a number between 0 and 1. Do not include any words, explanation, or extra text. Only the number so that i can get how truth is this you have to give number no text at all other than that."
+        message=confidence_prompt
     )
     confidence_score = confidence_response.text.strip()
     print(f"Confidence score: {confidence_score}")
