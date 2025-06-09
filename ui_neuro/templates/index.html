@@ -8,18 +8,34 @@
 </head>
 <body>
     <div class="container">
-        <h1>Query Processor</h1>
+        <h1 class="neuro-title">NeuroSymbolic Super Chat</h1>
         <div class="query-section">
-            <input type="text" id="query-input" placeholder="Enter your query here">
-            <button id="submit-query">Submit</button>
+            <input type="text" id="query-input" placeholder="Ask me anything...">
+            <button id="submit-query"><span>Send</span></button>
         </div>
-        <div class="response-section">
-            <h2>Results</h2>
-            <p><strong>Wrong Answer:</strong> <span id="wrong-answer"></span></p>
-            <p><strong>Correct Answer:</strong> <span id="correct-answer"></span></p>
-            <p><strong>Confidence Score:</strong> <span id="confidence"></span></p>
-            <h3>Comparison</h3>
-            <p id="comparison"></p>
+        <div class="chatbot-section">
+            <div class="chat-bubble ai-bubble">
+                <div class="bubble-title">LLM Generated Answer</div>
+                <div class="bubble-content" id="wrong-answer">...</div>
+            </div>
+            <div class="chat-bubble processed-bubble">
+                <div class="bubble-title">Processed Answer</div>
+                <div class="bubble-content" id="correct-answer">...</div>
+            </div>
+        </div>
+        <div class="confidence-section">
+            <div class="confidence-label">Confidence Score</div>
+            <div class="confidence-bar-outer">
+                <div class="confidence-bar-inner" id="confidence-bar">
+                    <span class="confidence-score-text" id="confidence-score-text">0.00</span>
+                </div>
+            </div>
+            <div class="confidence-graphic">
+                <svg id="confidence-svg" width="120" height="120">
+                    <circle cx="60" cy="60" r="50" stroke="#eee" stroke-width="12" fill="none"/>
+                    <circle id="confidence-circle" cx="60" cy="60" r="50" stroke="#00c9a7" stroke-width="12" fill="none" stroke-dasharray="314" stroke-dashoffset="314"/>
+                </svg>
+            </div>
         </div>
     </div>
     <script src="/static/js/main.js"></script>
