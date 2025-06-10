@@ -4,7 +4,7 @@ from datetime import datetime
 import cohere
 import requests
 import json
-
+import time
 app = Flask(__name__, static_folder='static')
 CORS(app)  # Enable CORS for all routes
 
@@ -60,7 +60,7 @@ def handle_query():
     wrong_answer = ""
     try:
         response = requests.post(
-            "https://d08e-49-204-87-250.ngrok-free.app/chat",
+            " https://52b1-49-204-87-250.ngrok-free.app/chat",
             headers={"Content-Type": "application/json"},
             json={
                 "question": query,
@@ -82,14 +82,17 @@ def handle_query():
         print(f"Error calling local LLM: {e}")
         wrong_answer = "[.....]"
     print(f"Generated wrong answer: {wrong_answer}")
+    
+
+      # Simulate processing delay
 
     # Generate correct answer using the LLM, referencing the wrong answer
     print("Generating correct answer with context of wrong answer...")
     correct_prompt = (
         f"User query: {query}\n"
         f"LLM Generated Answer: {wrong_answer}\n"
-        "If the above answer is wrong, provide the correct answer.only not even a single word more than that and keep as as short as possible. less then the length of the llm generated answer. "
-        "If it is correct, confirm it. Give only the correct answer, with no extra text.keep it as short as possible. and please do not include any words, explanation, or extra text. just a small answer. of less length like direct point to point answer"
+        "If the above answer is wrong, provide the correct answer.only not even a single word more than that dont even say crrected answer or give any formated outpot keep everything plain text no nee to give any formattings like * / or any thing only plain text and keep as as short as possible. less then the length of the llm generated answer. "
+        "If it is correct, confirm it. Give only the correct answer, with no extra text.keep it as short as possible. and please do not include any words, explanation, or extra text. just a small answer. of less length like direct point to point answer "
     )
     correct_response = cohere_client.chat(
         model='command-xlarge-nightly',
@@ -101,8 +104,8 @@ def handle_query():
     # Query for confidence score (numeric only)
     print("Querying confidence score...")
     confidence_prompt = (
-        f"For the answer '{correct_answer}' which you gave previously, "
-        "Do not include any words, explanation, or extra text. Only the number.by thinking how confident you are about the correctness of the answer. give the score strictly between 0 and 1. "
+        f"For the answer '{correct_answer}' which you gave previously,and answer given by another llm {wrong_answer} "
+        "Do not include any words, explanation, or extra text. Only the number,by thinking how confident you are about the correctness of the answer.In case if you find out the first answer contradicts your answer, assign a confidence score less than 0.5" 
     )
     confidence_response = cohere_client.chat(
         model='command-xlarge-nightly',
@@ -118,7 +121,7 @@ def handle_query():
         "confidence_score": confidence_score
     }
     print(f"Response data: {response_data}")
-
+    time.sleep(35)
     return jsonify(response_data), 200
 
 @app.route('/')
